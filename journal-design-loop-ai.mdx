@@ -1,0 +1,24 @@
+---
+title: "DesignLoop AI: Self-Improving Design Agent with Visual Feedback Loop"
+abstract: "Self-improving agent refining HTML design via visual feedback."
+authors:
+  - name: "Andrew Young"
+    affiliation: "Automate Capture Research"
+publishedDate: 2026-04-05
+tags:
+  - Design Agent
+  - Self-Improving
+  - Visual Feedback Loop
+  - AI Agent
+status: published
+featured: false
+pdfUrl: "https://research.automate-capture.com/papers/RR-design-loop-ai-Young2026.pdf"
+---
+
+This past sprint has been intensely focused on realizing the core concept of DesignLoop AI: building a truly self-improving design agent. The motivation behind this project stems from a persistent gap in current generative AI workflows for UI/UX. While large language models (LLMs) are excellent at generating initial code or text, they often lack the critical, iterative feedback mechanism required for high-quality, aesthetically sound design. A static prompt-to-HTML conversion is inherently brittle; it produces *an* output, but not necessarily the *best* output according to established design heuristics. Our goal, encapsulated in the `design_agent.py` framework, is to move beyond single-shot generation. We are building a closed-loop system where the AI doesn't just generate, but critically *evaluates* its own work against quantifiable design principles—like WCAG contrast ratios, grid consistency, and semantic HTML structure—and then autonomously refines the input specifications to achieve measurable improvement.
+
+Technically, the architecture is a classic Reinforcement Learning loop adapted for symbolic reasoning. The `ReasoningAgent` acts as the orchestrator. In the `think()` phase, the agent takes the current HTML output and runs it through a series of specialized parsers and metric extractors. These extractors quantify adherence to rules (e.g., calculating the actual contrast ratio between foreground and background colors in a specific component). Based on these observations, the agent formulates a corrective action in its `think()` step—for instance, "The primary CTA button contrast is below 4.5:1; increase background luminance." The `act()` function then translates this high-level reasoning back into concrete, modified design specifications (e.g., changing a CSS variable or adjusting a component's color palette definition). Finally, the modified specs are fed back into the design-to-HTML converter, and the resulting output is fed into `observe()`, closing the loop. This cycle repeats until a predefined success metric (e.g., all components meet AA accessibility standards) is met or a maximum iteration count is reached.
+
+The initial learnings have been illuminating, though not without significant hurdles. The biggest insight is the crucial difference between *syntactic* correctness and *semantic/aesthetic* quality. The agent can easily check if an `<h1>` tag exists, but judging the *appropriateness* of its placement or the *visual hierarchy* it implies requires sophisticated, potentially subjective, metric design. A current limitation is the complexity of the state space; refining one component's spacing might inadvertently break the layout consistency of an adjacent component, leading to cascading errors that the current agent struggles to backtrack from effectively. Future work must focus on incorporating a more robust constraint satisfaction layer or perhaps integrating a visual perception model (like a small CNN) into the `observe()` phase to better gauge perceived visual balance, moving beyond purely quantitative metrics.
+
+This project sits at a fascinating intersection of generative AI, automated testing, and Human-Computer Interaction (HCI). It directly addresses the need for "AI agents that reason," moving beyond simple prompt engineering. It mirrors research in automated software engineering where compilers or static analysis tools iteratively refine code. However, DesignLoop AI adds the layer of *subjective aesthetic judgment* into the loop, which is far more complex than functional correctness. If we can successfully stabilize this self-correction mechanism, we are not just building a better code generator; we are building an automated design partner capable of iterative, principle-driven refinement, significantly accelerating the design-to-production pipeline.
