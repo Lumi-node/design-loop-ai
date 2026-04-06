@@ -2,28 +2,30 @@
 
 Welcome to DesignLoop AI! This guide will get you up and running with our core design automation framework, focusing on the `design_agent.py` module.
 
-DesignLoop AI allows you to automate the iterative refinement of UI designs by wrapping a design-to-HTML converter within a sophisticated Reasoning Agent loop.
+DesignLoop AI enables AI agents to iteratively refine visual designs by analyzing generated code against established design principles.
 
 ## 📦 Package Structure
 
 The core functionality resides within the `design_loop_ai` package:
 
-*   `design_agent.py`: The main reasoning engine that drives the iterative design process.
-*   `iterative_design.py`: Manages the overall loop execution and state transitions.
-*   `metrics.py`: Contains functions to analyze generated HTML/CSS against predefined design principles.
-*   `tests/__init__.py`: Unit tests for the components.
+*   `design_agent.py`: The central `ReasoningAgent` that orchestrates the design loop (Think $\rightarrow$ Act $\rightarrow$ Observe).
+*   `iterative_design.py`: Contains the logic for managing the overall design iteration process.
+*   `metrics.py`: Provides functions to analyze generated HTML/CSS against quantitative design standards.
+*   `tests/__init__.py`: Unit and integration tests.
 
-## ✨ Core Concept: The Reasoning Agent Loop
+## 🧠 Core Concept: The Reasoning Agent
 
-The `design_agent.py` implements a closed-loop system:
+The `design_agent.py` module implements a `ReasoningAgent`. This agent operates in a continuous loop:
 
-1.  **`think()`**: The agent analyzes the current HTML output using rules defined in `metrics.py` (e.g., "Contrast ratio for primary text is below WCAG AA").
-2.  **`act()`**: Based on the analysis, the agent modifies the input design specifications (the "prompt" or "specs") to target the identified weaknesses.
-3.  **`observe()`**: The new specifications are fed back into the design-to-HTML converter, and the resulting HTML is analyzed again by `metrics.py`.
+1.  **`think()`**: Analyzes the current design output (HTML/CSS) using rules defined in `metrics.py`. It identifies weaknesses (e.g., low contrast, inconsistent padding).
+2.  **`act()`**: Based on the analysis, it generates *modified design specifications* (e.g., "Increase primary button padding by 10px," "Change header background to `#1a2b3c`"). These specs are fed back into the design-to-HTML converter.
+3.  **`observe()`**: Executes the design-to-HTML conversion with the new specs and extracts quantifiable metrics (Accessibility Score, Symmetry Score, etc.) from the resulting code.
 
-**Success Criteria:** The agent must improve a baseline design mockup across 3+ measurable dimensions (Accessibility Score, Layout Symmetry, Color Harmony) within 5 iterations.
+**Success Criteria:** The agent must improve a baseline design mockup across 3+ measurable dimensions within 5 iterations.
 
-## 🛠️ Installation (Conceptual)
+---
+
+## 🛠️ Installation & Setup (Conceptual)
 
 Assuming you have the package installed:
 
@@ -31,109 +33,105 @@ Assuming you have the package installed:
 pip install design_loop_ai
 ```
 
-## 💻 Usage Examples
+## 💡 Usage Examples
 
-Here are a few ways to utilize the `design_agent.py` module.
+Here are three practical examples demonstrating how to initialize and run the DesignLoop Agent.
 
 ### Example 1: Basic Accessibility Improvement Loop
 
-This example initializes an agent with a poor baseline design and runs the loop until the accessibility score improves significantly.
+This example focuses solely on improving the accessibility score of a simple component.
 
 ```python
 from design_loop_ai.design_agent import ReasoningAgent
-from design_loop_ai.iterative_design import run_design_cycle
-from design_loop_ai.metrics import AccessibilityMetric
+from design_loop_ai.iterative_design import DesignLoopRunner
+from design_loop_ai.metrics import AccessibilityChecker
 
-# 1. Define the initial, flawed design specification
-initial_specs = {
-    "layout": "two-column",
-    "color_palette": ["#000000", "#FFFFFF"], # Poor contrast example
-    "component_structure": "header_nav_content_footer"
-}
+# 1. Define the initial state (e.g., a baseline mockup spec)
+initial_spec = {"component": "button", "color_scheme": "default", "text_size": "16px"}
 
-# 2. Initialize the agent, specifying the metrics it must optimize
-agent = ReasoningAgent(
-    initial_specs=initial_specs,
-    optimization_targets=[AccessibilityMetric()]
+# 2. Initialize the agent, providing the specific metric checker
+accessibility_agent = ReasoningAgent(
+    metric_analyzer=AccessibilityChecker()
 )
 
-print("--- Starting Accessibility Optimization ---")
+# 3. Set up the runner to manage the iteration process
+runner = DesignLoopRunner(
+    agent=accessibility_agent,
+    initial_design_spec=initial_spec,
+    max_iterations=5
+)
 
-# 3. Run the full iterative cycle
-final_design_html, history = run_design_cycle(agent, max_iterations=5)
+print("--- Starting Accessibility Refinement ---")
+final_design = runner.run()
 
-print("\n✅ Optimization Complete.")
-print(f"Final Accessibility Score: {history[-1]['metrics']['accessibility_score']:.2f}")
-# In a real scenario, you would save final_design_html to a file
+print("\n✅ Design Loop Complete.")
+print(f"Final Accessibility Score: {final_design.metrics['accessibility_score']}")
 ```
 
-### Example 2: Focusing on Layout Symmetry and Harmony
+### Example 2: Multi-Dimensional Refinement (Symmetry & Harmony)
 
-This example demonstrates how to guide the agent to focus on visual aesthetics rather than just accessibility, by prioritizing different metrics.
+This example demonstrates the agent tackling multiple design principles simultaneously by integrating different metric checkers.
 
 ```python
 from design_loop_ai.design_agent import ReasoningAgent
-from design_loop_ai.iterative_design import run_design_cycle
-from design_loop_ai.metrics import LayoutSymmetryMetric, ColorHarmonyMetric
+from design_loop_ai.iterative_design import DesignLoopRunner
+from design_loop_ai.metrics import SymmetryChecker, ColorHarmonyChecker
 
-# Initial specs for a complex dashboard layout
-dashboard_specs = {
-    "layout": "grid_3x3",
-    "spacing_unit": 10,
-    "component_structure": "widget_A_widget_B_widget_C"
-}
+# 1. Combine multiple metric analyzers into a composite checker
+composite_checker = type('CompositeChecker', (object,), {
+    'analyze': lambda html: {
+        'symmetry_score': SymmetryChecker().analyze(html),
+        'color_harmony_score': ColorHarmonyChecker().analyze(html)
+    }
+})()
 
-# Agent targets both symmetry and color harmony
-agent = ReasoningAgent(
-    initial_specs=dashboard_specs,
-    optimization_targets=[LayoutSymmetryMetric(), ColorHarmonyMetric()]
+# 2. Initialize the agent with the composite analyzer
+multi_dim_agent = ReasoningAgent(
+    metric_analyzer=composite_checker
 )
 
-print("\n--- Starting Aesthetic Refinement ---")
+# 3. Run the loop
+runner = DesignLoopRunner(
+    agent=multi_dim_agent,
+    initial_design_spec={"layout": "grid", "palette": "vibrant"},
+    max_iterations=5
+)
 
-# Run the cycle, expecting the agent to adjust padding/margins (act())
-final_html, history = run_design_cycle(agent, max_iterations=4)
+print("\n--- Starting Multi-Dimensional Refinement ---")
+final_result = runner.run()
 
-print("\n✅ Aesthetic Refinement Complete.")
-print(f"Final Symmetry Score: {history[-1]['metrics']['layout_symmetry']:.2f}")
-print(f"Final Harmony Score: {history[-1]['metrics']['color_harmony']:.2f}")
+print("\n✨ Final Design Metrics:")
+print(f"  Symmetry Score: {final_result.metrics['symmetry_score']:.2f}")
+print(f"  Color Harmony Score: {final_result.metrics['color_harmony_score']:.2f}")
 ```
 
-### Example 3: Inspecting Agent State During Iteration
+### Example 3: Inspecting Agent Logic (Debugging/Testing)
 
-This example shows how to manually inspect the agent's reasoning process mid-cycle, which is crucial for debugging or understanding *why* the agent made a specific change.
+If you want to see *why* the agent decided to change something, you can manually step through the `think()` and `act()` methods using the agent instance directly.
 
 ```python
 from design_loop_ai.design_agent import ReasoningAgent
-from design_loop_ai.iterative_design import run_design_cycle
-from design_loop_ai.metrics import ContrastRatioMetric
+from design_loop_ai.metrics import ContrastRatioChecker
 
-# Setup a simple agent
-agent = ReasoningAgent(
-    initial_specs={"layout": "single_column", "color_palette": ["#333", "#FFF"]},
-    optimization_targets=[ContrastRatioMetric()]
+# Setup a minimal agent instance
+contrast_agent = ReasoningAgent(
+    metric_analyzer=ContrastRatioChecker()
 )
 
-print("\n--- Tracing Agent Decisions ---")
+# Assume 'current_html' is the output from the previous iteration
+current_html = "<div style='background-color: #ccc; color: #333;'>Text</div>"
 
-# We use a custom runner or hook to capture intermediate steps
-# (Note: In a production environment, you would hook into the internal loop)
-try:
-    # Simulate running one step manually to see the thought process
-    current_html = "<html><body><p style='color:#333; background-color:#FFF;'>Test</p></body></html>"
-    
-    # 1. Observe current state
-    metrics = agent.observe(current_html)
-    print(f"-> OBSERVE: Current Contrast Ratio: {metrics['contrast_ratio']:.2f}")
-    
-    # 2. Think about the failure
-    reasoning = agent.think(metrics)
-    print(f"-> THINK: Agent identified issue: {reasoning}")
-    
-    # 3. Act by modifying specs
-    new_specs = agent.act(reasoning)
-    print(f"-> ACT: New specs generated: {new_specs}")
+print("--- Agent Thinking Phase ---")
+# The agent analyzes the current state
+analysis = contrast_agent.think(current_html)
+print(f"Agent Analysis: {analysis}")
 
-except Exception as e:
-    print(f"Error during manual trace: {e}")
+# The agent decides on a change based on the analysis
+new_spec = contrast_agent.act(analysis)
+print(f"Agent Action (New Spec): {new_spec}")
+
+# Simulate observation (running the design-to-HTML converter with the new spec)
+# In a real scenario, this would call the converter function.
+observed_metrics = contrast_agent.observe(new_spec)
+print(f"Observed Metrics After Action: {observed_metrics}")
 ```

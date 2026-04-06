@@ -12,7 +12,7 @@ requires-python = ">=3.10"
 authors = [
     { name = "Andrew Young", email = "research@automate-capture.com" },
 ]
-keywords = ["AI", "Design", "HTML", "Agent", "FeedbackLoop"]
+keywords = ["AI", "Design", "HTML", "Agent", "Feedback"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",

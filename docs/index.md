@@ -1,49 +1,57 @@
 # DesignLoop AI
 
 <div class="hero">
-  <h1 style="text-align: center;">DesignLoop AI</h1>
-  <p style="text-align: center; font-size: 1.5em;">Self-improving agent refining HTML design via visual feedback.</p>
+  <h1 class="display-1">DesignLoop AI</h1>
+  <p class="lead">Self-improving agents refining HTML design via visual feedback.</p>
 </div>
 
 ---
 
-## 🚀 What is DesignLoop AI?
+## 🚀 Overview
 
-DesignLoop AI is a novel system that moves beyond static design-to-code conversion. We introduce a **Reasoning Agent** loop that treats HTML generation as an iterative optimization problem. Our agent doesn't just render; it *critiques* and *refines*.
+DesignLoop AI is a novel system that automates the iterative refinement of web designs. Instead of relying on static prompts, our system employs a **Reasoning Agent** loop. This agent takes an initial design mockup, generates HTML, analyzes the output against established design principles (accessibility, symmetry, harmony), and then intelligently modifies the design specifications to generate a better version—all without human intervention.
 
-The core loop involves:
-1. **Think:** Analyzing the current HTML against established design principles (contrast, spacing, semantics).
-2. **Act:** Modifying the underlying design specifications based on the critique.
-3. **Observe:** Extracting quantifiable metrics (accessibility scores, symmetry metrics) from the resulting HTML/CSS.
-
-The goal is simple: **Achieve measurable design excellence through autonomous iteration.**
+Our goal is to create a robust `design_agent.py` that drives this continuous improvement cycle.
 
 ---
 
 ## ✨ Key Capabilities
 
-<div class="grid">
-  <div class="card">
-    <i class="fas fa-brain fa-2x" style="color: #007bff;"></i>
-    <h3>Intelligent Reasoning</h3>
-    <p>The agent doesn't just follow rules; it reasons about design intent, identifying subtle inconsistencies in layout and structure.</p>
+<div class="row">
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
+        <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+        <h5 class="card-title">Reasoning Loop</h5>
+        <p class="card-text">The core agent analyzes flaws (e.g., poor contrast, inconsistent spacing) and determines the precise fix needed.</p>
+      </div>
+    </div>
   </div>
-  <div class="card">
-    <i class="fas fa-eye fa-2x" style="color: #28a745;"></i>
-    <h3>Visual Feedback Loop</h3>
-    <p>Directly observes the rendered output, extracting quantitative metrics (e.g., contrast ratios, alignment errors) to guide refinement.</p>
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
+        <i class="fas fa-eye fa-3x text-success mb-3"></i>
+        <h5 class="card-title">Visual Observation</h5>
+        <p class="card-text">Automatically extracts measurable metrics (Accessibility Score, Symmetry Index) directly from the rendered HTML/CSS.</p>
+      </div>
+    </div>
   </div>
-  <div class="card">
-    <i class="fas fa-code fa-2x" style="color: #ffc107;"></i>
-    <h3>Iterative Refinement</h3>
-    <p>Automatically regenerates components by adjusting design specs, driving the design toward predefined success criteria across multiple dimensions.</p>
-  </div>
-  <div class="card">
-    <i class="fas fa-bolt fa-2x" style="color: #dc3545;"></i>
-    <h3>Measurable Success</h3>
-    <p>We track improvement across 3+ dimensions—Accessibility Score, Layout Symmetry, and Color Harmony—within a fixed iteration budget.</p>
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
+        <i class="fas fa-palette fa-3x text-warning mb-3"></i>
+        <h5 class="card-title">Iterative Refinement</h5>
+        <p class="card-text">Systematically improves designs across multiple dimensions until predefined success criteria are met.</p>
+      </div>
+    </div>
   </div>
 </div>
+
+---
+
+## 🎯 Success Criteria
+
+The agent is considered successful when it improves a baseline design mockup across **3+ measurable dimensions** (e.g., accessibility score, layout symmetry, color harmony) within **5 iterations**.
 
 ---
 
@@ -51,20 +59,25 @@ The goal is simple: **Achieve measurable design excellence through autonomous it
 
 Ready to see the agent in action?
 
-<div style="text-align: center; margin: 30px 0;">
-  <a href="installation.md" class="button primary">📖 Get Started Guide</a>
+<div class="d-flex justify-content-center my-4">
+  <a href="getting_started.md" class="btn btn-primary btn-lg px-5">
+    <i class="fas fa-arrow-right me-2"></i> Get Started Guide
+  </a>
 </div>
 
 ### Quick Installation
 
-To run the core agent loop (`design_agent.py`), install the necessary dependencies:
+To run the core agent framework, clone the repository and install dependencies:
 
-<pre>
-$ pip install designloop-ai[full]
-</pre>
+<div class="alert alert-info">
+  <p class="mb-0">
+    <code>git clone https://github.com/DesignLoopAI/designloop.git</code><br>
+    <code>pip install -r requirements.txt</code>
+  </p>
+</div>
 
 ---
 
-<div style="text-align: center; margin-top: 50px;">
-  <p>DesignLoop AI: Where code meets critical design thinking.</p>
+<div class="text-center mt-5 pt-4 border-top">
+  <p class="text-muted">&copy; 2024 DesignLoop AI. Automating the path to perfect design.</p>
 </div>

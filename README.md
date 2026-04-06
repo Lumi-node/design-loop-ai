@@ -10,15 +10,15 @@
 
 <p align="center">
   <a href="https://github.com/Lumi-node/design-loop-ai"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License Badge"></a>
-  <a href="https://github.com/Lumi-node/design-loop-ai"><img src="https://img.shields.io/badge/Python-3.10%2B-blue.svg" alt="Python Badge"></a>
-  <a href="https://github.com/Lumi-node/design-loop-ai"><img src="https://img.shields.io/badge/Tests-9%20Tests-green.svg" alt="Tests Badge"></a>
+  <a href="https://github.com/Lumi-node/design-loop-ai"><img src="https://img.shields.io/badge/Python-3.10%2B-blue.svg" alt="Python Version Badge"></a>
+  <a href="https://github.com/Lumi-node/design-loop-ai"><img src="https://img.shields.io/badge/Tests-9%2B-green.svg" alt="Test Count Badge"></a>
 </p>
 
 ---
 
-DesignLoop AI is a sophisticated proof-of-concept demonstrating an autonomous agent capable of iteratively refining raw HTML designs. It operates by taking an initial visual mockup, converting it to HTML, and then employing a reasoning agent to analyze the output against predefined design principles (e.g., contrast, symmetry).
+DesignLoop AI is a sophisticated proof-of-concept demonstrating an autonomous agent capable of iteratively refining raw HTML designs based on visual quality metrics. It bridges the gap between high-level design intent (visual mockups) and production-ready code by employing a closed-loop feedback system.
 
-This system closes the loop between visual intent and code quality. The agent uses extracted metrics to guide its actions, regenerating specific components in subsequent cycles until target quality thresholds are met, showcasing a path toward truly autonomous UI development.
+This project matters because it explores the frontier of AI-driven design automation, aiming to move beyond simple code generation toward true, self-correcting design optimization across multiple measurable dimensions like accessibility and visual harmony.
 
 ---
 
@@ -32,97 +32,93 @@ pip install design_loop_ai
 from iterative_design import run_design_loop
 from PIL import Image
 
-# Load the initial design mockup image
-image_path = "path/to/initial_mockup.png"
-target_thresholds = {"accessibility_score": 0.9, "layout_symmetry": 0.85}
+# Assuming 'input_mockup.png' is the initial design image
+initial_image = Image.open("input_mockup.png")
 
-# Run the iterative refinement process
-final_html = run_design_loop(image_path, target_thresholds)
+# Run the agent to refine the design against target quality thresholds
+final_html_output = run_design_loop(
+    initial_image, 
+    target_accessibility=0.9, 
+    max_iterations=5
+)
 
 print("Design refinement complete. Final HTML generated.")
-# Save or serve final_html
+# final_html_output contains the optimized HTML string
 ```
 
 ## What Can You Do?
 
 ### Iterative Refinement
-The core functionality is the automated improvement of a design. The `iterative_design.py` entry point manages the entire process: image ingestion $\rightarrow$ HTML generation $\rightarrow$ Agent loop $\rightarrow$ Metric evaluation $\rightarrow$ Component regeneration.
-
-### Design Analysis and Metrics
-The `metrics.py` module provides quantitative feedback. The agent uses these metrics to judge the quality of the current HTML output against established design standards.
-
-```python
-from metrics import calculate_contrast_ratio
-
-# Example usage within the agent's observation phase
-ratio = calculate_contrast_ratio("#FFFFFF", "#000000")
-print(f"Contrast Ratio: {ratio}")
-```
-
-### Agent Reasoning and Action
-The `design_agent.py` encapsulates the decision-making logic. Its `think()` method analyzes the current state, and its `act()` method generates targeted modifications to the design specifications for the next iteration.
+The core functionality is the agent's ability to cycle through planning, execution, and evaluation. The `design_agent.py` wraps the design-to-HTML converter within a ReasoningAgent loop.
 
 ```python
 from design_agent import ReasoningAgent
 
 agent = ReasoningAgent()
-# Agent analyzes the current HTML structure and suggests a change
-suggested_change = agent.think(current_html_state)
-print(f"Agent suggests: {suggested_change}")
+# The agent analyzes the current state and decides on the next action
+next_action = agent.think(current_html_state) 
+```
+
+### Metric Observation
+The `metrics.py` module is responsible for extracting quantitative data from the generated HTML/CSS, allowing the agent to objectively measure improvement.
+
+```python
+from metrics import calculate_contrast_ratio
+
+# Calculate the contrast ratio between two defined colors
+ratio = calculate_contrast_ratio("#FFFFFF", "#000000")
+print(f"Contrast Ratio: {ratio:.2f}")
 ```
 
 ## Architecture
 
-DesignLoop AI follows a closed-loop feedback architecture. The process begins with an image input, which is converted into an initial HTML structure. This structure is fed into the `ReasoningAgent`.
+DesignLoop AI operates as a closed-loop system orchestrated by `iterative_design.py`.
 
-1.  **Observation:** The agent calls functions in `metrics.py` to score the current HTML against quality targets.
-2.  **Thinking:** The agent uses these scores to determine *why* the design failed (e.g., "low contrast in header").
-3.  **Action:** The agent modifies the design specifications and instructs the HTML generator to regenerate the affected components.
-4.  **Iteration:** The new HTML is observed again, and the cycle repeats until convergence or iteration limit is reached.
+1.  **Input:** An initial design image is fed into `iterative_design.py`.
+2.  **Agent Loop:** The `ReasoningAgent` (`design_agent.py`) takes control.
+3.  **Think/Act:** The agent uses design principles to formulate a plan (`think()`) and modifies the design specifications to regenerate components (`act()`).
+4.  **Observe:** The resulting HTML is processed by `metrics.py` to extract objective scores (e.g., accessibility, symmetry).
+5.  **Feedback:** These metrics are fed back to the agent, allowing it to adjust its strategy for the next iteration until quality thresholds are met or the iteration limit is reached.
 
 ```mermaid
 graph TD
-    A[Input Image] --> B(HTML Generator);
-    B --> C{Current HTML Output};
-    C --> D[Metrics.py: Observation];
-    D --> E[DesignAgent.py: Think()];
-    E -- Decision --> F[DesignAgent.py: Act()];
-    F -- New Specs --> B;
-    D -- Scores --> E;
-    E -- Convergence? --> G{Stop/Continue};
-    G -- Continue --> C;
-    G -- Stop --> H[Final HTML];
+    A[Input Image] --> B(iterative_design.py);
+    B --> C{ReasoningAgent - design_agent.py};
+    C -- Plan/Modify Specs --> D[Design-to-HTML Converter];
+    D --> E[Generated HTML/CSS];
+    E --> F(Metrics Calculation - metrics.py);
+    F -- Scores/Feedback --> C;
+    C -- Output --> G[Final HTML];
 ```
 
 ## API Reference
 
-### `iterative_design.py`
-*   `run_design_loop(image_path: str, thresholds: dict) -> str`: Executes the full design refinement pipeline. Returns the final, optimized HTML string.
+### `design_agent.ReasoningAgent`
+The central control unit.
+*   `think(state: str) -> Action`: Analyzes the current design state and determines the next required action (e.g., "Increase padding on header").
+*   `act(action: Action, specs: Dict) -> Dict`: Executes the action by modifying the underlying design specifications.
+*   `observe(html: str) -> Dict`: (Internal/Helper) Extracts measurable data from the rendered output.
 
-### `design_agent.py`
-*   `ReasoningAgent()`: Initializes the agent.
-*   `agent.think(state: str) -> str`: Analyzes the current design state and returns a high-level reasoning or modification instruction.
-*   `agent.act(instruction: str) -> dict`: Translates the reasoning into concrete, actionable design parameter changes.
-
-### `metrics.py`
-*   `calculate_contrast_ratio(color1: str, color2: str) -> float`: Computes the WCAG contrast ratio between two hex/RGB colors.
-*   `calculate_layout_symmetry(html_content: str) -> float`: Assesses the visual balance and symmetry of the rendered layout.
+### `iterative_design.run_design_loop(image: Image, **kwargs) -> str`
+The primary entry point.
+*   **Signature:** `run_design_loop(image: Image, target_accessibility: float, max_iterations: int) -> str`
+*   **Description:** Manages the entire lifecycle, starting from the initial image to the final optimized HTML string.
 
 ## Research Background
 
-This project is inspired by advancements in Reinforcement Learning applied to generative design tasks, specifically the concept of "Self-Correction" in AI agents. It builds upon principles found in visual programming and automated UI testing, aiming to bridge the gap between abstract design goals and concrete code implementation.
+This project is inspired by research in Reinforcement Learning applied to creative tasks, specifically leveraging the concept of self-correction in generative models. The methodology draws parallels from visual quality assessment frameworks used in HCI research, adapted for automated code refinement.
 
 ## Testing
 
-The project includes 9 unit and integration tests located in the `tests/` directory, ensuring the core logic within `design_agent.py` and `metrics.py` behaves as expected across various inputs.
+The project includes 9 unit and integration tests located in the `tests/` directory, ensuring the core logic of metric calculation and agent state transitions remains robust.
 
 ## Contributing
 
-We welcome contributions! Please read our contribution guidelines (if available) or feel free to open an issue or submit a pull request with improvements, bug fixes, or new features.
+We welcome contributions! Please feel free to fork the repository and submit a Pull Request. Check out our `CONTRIBUTING.md` (if available) for guidelines on coding standards and submission processes.
 
 ## Citation
 
-This work is an independent proof-of-concept. For inspiration on iterative refinement loops, see related literature in Active Learning and AI-driven design systems.
+This work builds upon foundational concepts in automated UI generation and AI-driven design optimization. Further reading on related topics can be found in papers concerning visual grounding and iterative refinement algorithms.
 
 ## License
 The project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

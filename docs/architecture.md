@@ -1,53 +1,52 @@
 # Architecture: DesignLoop AI
 
-DesignLoop AI is an autonomous, iterative design optimization system designed to evolve a baseline design mockup into a high-quality, production-ready interface. It operates as a closed-loop feedback system, where an AI agent continuously analyzes the generated output against predefined design principles, diagnoses weaknesses, and autonomously refines the underlying design specifications until measurable quality thresholds are met.
+DesignLoop AI is an intelligent, iterative design refinement system designed to automatically evolve a baseline design mockup into a high-quality, production-ready artifact. Instead of relying on manual designer feedback, DesignLoop AI employs a closed-loop feedback mechanism where an AI agent continuously analyzes, critiques, and regenerates design components based on quantifiable design principles. The system operates by cycling through reasoning, action, and observation until predefined quality thresholds are met.
 
-## System Overview
+## System Diagram
 
-The core of DesignLoop AI is the `design_agent.py`, which orchestrates the entire refinement process. This agent leverages the other modules to perform a cycle of **Think $\rightarrow$ Act $\rightarrow$ Observe**. It takes an initial design prompt, generates an HTML/CSS output, evaluates that output using quantitative metrics, and then modifies the input design specifications to guide the next, improved generation. The system's success is defined by its ability to demonstrably improve a baseline design across at least three measurable dimensions (e.g., accessibility, layout symmetry, color harmony) within a maximum of five iterations.
-
-## Module Relationships
-
-The following diagram illustrates how the components interact within the DesignLoop AI framework:
+The following diagram illustrates the relationships and dependencies between the core modules of the DesignLoop AI framework.
 
 ```mermaid
 graph TD
-    A[DesignLoop AI Orchestrator] --> B(design_agent.py);
-    B --> C{iterative_design.py};
-    C --> D[Design-to-HTML Converter];
-    D --> E[Generated HTML/CSS];
-    E --> F(metrics.py);
-    F --> B;
-    B --> C;
-    C --> G[Design Specs Input];
-    G --> D;
-    subgraph Core Components
-        B
-        C
-        F
-    end
+    A[DesignLoop AI System] --> B(design_agent.py);
+    B --> C(iterative_design.py);
+    B --> D(metrics.py);
+    C --> E[Design-to-HTML Converter];
+    D --> F[HTML/CSS Output];
+    E --> F;
+    F --> D;
+    D --> B;
+    C --> B;
 ```
 
 ## Module Descriptions
 
-*   **`design_agent.py` (The Brain):** This module encapsulates the core reasoning loop. It implements the `think()`, `act()`, and `observe()` methods.
-    *   **`think()`:** Analyzes the current HTML output against established design heuristics (e.g., WCAG contrast ratios, grid alignment, semantic correctness). It identifies specific areas of failure or sub-optimality.
-    *   **`act()`:** Based on the analysis from `think()`, it generates targeted modifications to the design specifications (e.g., "Increase padding on component X by 10px," or "Change primary color to hex code Y").
-    *   **`observe()`:** Interfaces with `metrics.py` to quantify the current state of the design.
-*   **`iterative_design.py` (The Conductor):** This module manages the state and flow of the design process. It controls the iteration count, passes the current design specifications to the converter, and manages the loop termination condition (success or failure).
-*   **`metrics.py` (The Judge):** This module is responsible for quantitative evaluation. It parses the generated HTML/CSS and calculates objective scores for defined dimensions, such as:
-    *   Accessibility Score (e.g., contrast ratio compliance).
-    *   Layout Symmetry Score (e.g., deviation from a perfect grid).
-    *   Color Harmony Score (e.g., adherence to established color theory palettes).
-*   **`tests/__init__.py` (The Validator):** Contains unit and integration tests to ensure the reliability and correctness of the agent's logic, metric calculations, and the stability of the design conversion process.
+### `design_agent.py` (The Brain)
+This is the core control module, implementing the Reasoning Agent loop. The `DesignAgent` orchestrates the entire refinement process.
+*   **`think()`:** Analyzes the current state (HTML/CSS) against a set of established design principles (e.g., WCAG contrast ratios, grid alignment, semantic correctness). It generates a critique and determines the necessary modifications.
+*   **`act()`:** Translates the critique into actionable changes. It modifies the design specifications (e.g., changing a color hex code, adjusting padding values) and passes these updated specs to the regeneration pipeline.
+*   **`observe()`:** Interfaces with the output to extract measurable data, feeding the results back into the agent's reasoning process.
+
+### `iterative_design.py` (The Engine)
+This module manages the state and flow of the design loop. It handles the orchestration of the regeneration process. It takes the modified design specifications from the `design_agent` and drives the external **Design-to-HTML Converter** to produce a new version of the design artifact. It ensures the loop continues until the success criteria are met or a maximum iteration limit is reached.
+
+### `metrics.py` (The Judge)
+This module is responsible for quantitative evaluation. It parses the generated HTML and associated CSS to calculate objective design scores. Key metrics include:
+*   **Accessibility Score:** Based on contrast ratios and ARIA usage.
+*   **Layout Symmetry:** Measuring deviation from ideal grid alignment.
+*   **Color Harmony:** Analyzing color palettes against established theory.
+
+### `tests/__init__.py` (The Validator)
+This directory contains unit and integration tests to ensure the robustness and correctness of the agent's logic, the metric calculations, and the state transitions within the iterative loop.
 
 ## Data Flow Explanation
 
-The process follows a strict, cyclical data flow:
+The DesignLoop AI process follows a strict Observe $\rightarrow$ Think $\rightarrow$ Act $\rightarrow$ Observe cycle:
 
-1.  **Initialization:** `iterative_design.py` starts with an initial set of **Design Specifications** and passes them to the Design-to-HTML Converter.
-2.  **Generation:** The Converter produces the **Generated HTML/CSS**.
-3.  **Observation:** The `design_agent.py` calls `metrics.py`, passing the HTML/CSS. `metrics.py` returns a set of **Quantitative Metrics** (e.g., `{accessibility: 0.85, symmetry: 0.72}`).
-4.  **Reasoning (Think):** The agent analyzes these metrics against the target goals. If the goals are not met, the `think()` function determines *why* the design failed (e.g., "Low contrast in header").
-5.  **Action (Act):** The agent translates this diagnosis into concrete changes, generating **Modified Design Specifications**.
-6.  **Iteration:** `iterative_design.py` receives the Modified Specifications and loops back to Step 2, continuing until the success criteria (3+ dimensions improved within 5 iterations) are satisfied or the iteration limit is reached.
+1.  **Initialization:** The process begins with a baseline design mockup and initial specifications.
+2.  **Observation (Initial):** `metrics.py` analyzes the initial HTML output to establish baseline scores across the target dimensions (Accessibility, Symmetry, Harmony).
+3.  **Thinking:** `design_agent.py` receives these metrics. Its `think()` method compares the current scores against the target goals. If the goals are not met, it generates a detailed critique identifying specific areas for improvement (e.g., "Contrast ratio in CTA button is 2.5:1, needs to be $\ge 4.5:1$").
+4.  **Acting:** The agent's `act()` method translates this critique into concrete changes, modifying the design specifications (e.g., changing the button's background color).
+5.  **Iteration/Regeneration:** `iterative_design.py` takes these new specifications and feeds them into the **Design-to-HTML Converter**, generating a new HTML/CSS artifact.
+6.  **Observation (Next Cycle):** The new artifact is passed back to `metrics.py` for re-evaluation.
+7.  **Convergence:** This loop repeats. The process terminates successfully when the `design_agent` determines that all three measurable dimensions have improved sufficiently across the required iterations (Success Criterion: $\ge 3$ dimensions improved within $\le 5$ iterations).
