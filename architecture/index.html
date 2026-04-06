@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Self-improving agent refining HTML design via visual feedback.">
+        <meta name="description" content="Self-improving agent using visual feedback for automated design.">
       
       
         <meta name="author" content="Andrew Young">
@@ -596,10 +596,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#system-diagram" class="md-nav__link">
+  <a href="#module-relationships" class="md-nav__link">
     <span class="md-ellipsis">
       
-        System Diagram
+        Module Relationships
       
     </span>
   </a>
@@ -619,10 +619,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#design_agentpy-the-brain" class="md-nav__link">
+  <a href="#mainpy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        design_agent.py (The Brain)
+        main.py
       
     </span>
   </a>
@@ -630,10 +630,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#iterative_designpy-the-engine" class="md-nav__link">
+  <a href="#agent_designerpy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        iterative_design.py (The Engine)
+        agent_designer.py
       
     </span>
   </a>
@@ -641,10 +641,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#metricspy-the-judge" class="md-nav__link">
+  <a href="#metricspy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        metrics.py (The Judge)
+        metrics.py
       
     </span>
   </a>
@@ -652,10 +652,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tests__init__py-the-validator" class="md-nav__link">
+  <a href="#tests__init__py" class="md-nav__link">
     <span class="md-ellipsis">
       
-        tests/__init__.py (The Validator)
+        tests/__init__.py
       
     </span>
   </a>
@@ -794,10 +794,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#system-diagram" class="md-nav__link">
+  <a href="#module-relationships" class="md-nav__link">
     <span class="md-ellipsis">
       
-        System Diagram
+        Module Relationships
       
     </span>
   </a>
@@ -817,10 +817,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#design_agentpy-the-brain" class="md-nav__link">
+  <a href="#mainpy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        design_agent.py (The Brain)
+        main.py
       
     </span>
   </a>
@@ -828,10 +828,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#iterative_designpy-the-engine" class="md-nav__link">
+  <a href="#agent_designerpy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        iterative_design.py (The Engine)
+        agent_designer.py
       
     </span>
   </a>
@@ -839,10 +839,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#metricspy-the-judge" class="md-nav__link">
+  <a href="#metricspy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        metrics.py (The Judge)
+        metrics.py
       
     </span>
   </a>
@@ -850,10 +850,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tests__init__py-the-validator" class="md-nav__link">
+  <a href="#tests__init__py" class="md-nav__link">
     <span class="md-ellipsis">
       
-        tests/__init__.py (The Validator)
+        tests/__init__.py
       
     </span>
   </a>
@@ -897,44 +897,37 @@
 
 
 <h1 id="architecture-designloop-ai">Architecture: DesignLoop AI<a class="headerlink" href="#architecture-designloop-ai" title="Permanent link">&para;</a></h1>
-<p>DesignLoop AI is an intelligent, iterative design refinement system designed to automatically evolve a baseline design mockup into a high-quality, production-ready artifact. Instead of relying on manual designer feedback, DesignLoop AI employs a closed-loop feedback mechanism where an AI agent continuously analyzes, critiques, and regenerates design components based on quantifiable design principles. The system operates by cycling through reasoning, action, and observation until predefined quality thresholds are met.</p>
-<h2 id="system-diagram">System Diagram<a class="headerlink" href="#system-diagram" title="Permanent link">&para;</a></h2>
-<p>The following diagram illustrates the relationships and dependencies between the core modules of the DesignLoop AI framework.</p>
+<p>DesignLoop AI is a sophisticated, modular system designed to automate and optimize the design process through intelligent agent orchestration. The architecture is built around a core loop where specialized AI agents are designed, executed, and evaluated against predefined metrics. This structure allows for iterative refinement, enabling the system to learn and improve its design outputs autonomously.</p>
+<h2 id="module-relationships">Module Relationships<a class="headerlink" href="#module-relationships" title="Permanent link">&para;</a></h2>
+<p>The following diagram illustrates the dependencies and interactions between the core components of DesignLoop AI.</p>
 <pre class="mermaid"><code>graph TD
-    A[DesignLoop AI System] --&gt; B(design_agent.py);
-    B --&gt; C(iterative_design.py);
-    B --&gt; D(metrics.py);
-    C --&gt; E[Design-to-HTML Converter];
-    D --&gt; F[HTML/CSS Output];
-    E --&gt; F;
-    F --&gt; D;
-    D --&gt; B;
-    C --&gt; B;</code></pre>
+    A[main.py] --&gt; B(agent_designer.py);
+    A --&gt; C(metrics.py);
+    B --&gt; D{Agent Instances};
+    D --&gt; A;
+    C --&gt; A;
+    subgraph Testing
+        E[tests/__init__.py] --&gt; A;
+        E --&gt; B;
+        E --&gt; C;
+    end</code></pre>
 <h2 id="module-descriptions">Module Descriptions<a class="headerlink" href="#module-descriptions" title="Permanent link">&para;</a></h2>
-<h3 id="design_agentpy-the-brain"><code>design_agent.py</code> (The Brain)<a class="headerlink" href="#design_agentpy-the-brain" title="Permanent link">&para;</a></h3>
-<p>This is the core control module, implementing the Reasoning Agent loop. The <code>DesignAgent</code> orchestrates the entire refinement process.
-*   <strong><code>think()</code>:</strong> Analyzes the current state (HTML/CSS) against a set of established design principles (e.g., WCAG contrast ratios, grid alignment, semantic correctness). It generates a critique and determines the necessary modifications.
-*   <strong><code>act()</code>:</strong> Translates the critique into actionable changes. It modifies the design specifications (e.g., changing a color hex code, adjusting padding values) and passes these updated specs to the regeneration pipeline.
-*   <strong><code>observe()</code>:</strong> Interfaces with the output to extract measurable data, feeding the results back into the agent's reasoning process.</p>
-<h3 id="iterative_designpy-the-engine"><code>iterative_design.py</code> (The Engine)<a class="headerlink" href="#iterative_designpy-the-engine" title="Permanent link">&para;</a></h3>
-<p>This module manages the state and flow of the design loop. It handles the orchestration of the regeneration process. It takes the modified design specifications from the <code>design_agent</code> and drives the external <strong>Design-to-HTML Converter</strong> to produce a new version of the design artifact. It ensures the loop continues until the success criteria are met or a maximum iteration limit is reached.</p>
-<h3 id="metricspy-the-judge"><code>metrics.py</code> (The Judge)<a class="headerlink" href="#metricspy-the-judge" title="Permanent link">&para;</a></h3>
-<p>This module is responsible for quantitative evaluation. It parses the generated HTML and associated CSS to calculate objective design scores. Key metrics include:
-*   <strong>Accessibility Score:</strong> Based on contrast ratios and ARIA usage.
-*   <strong>Layout Symmetry:</strong> Measuring deviation from ideal grid alignment.
-*   <strong>Color Harmony:</strong> Analyzing color palettes against established theory.</p>
-<h3 id="tests__init__py-the-validator"><code>tests/__init__.py</code> (The Validator)<a class="headerlink" href="#tests__init__py-the-validator" title="Permanent link">&para;</a></h3>
-<p>This directory contains unit and integration tests to ensure the robustness and correctness of the agent's logic, the metric calculations, and the state transitions within the iterative loop.</p>
+<h3 id="mainpy"><code>main.py</code><a class="headerlink" href="#mainpy" title="Permanent link">&para;</a></h3>
+<p>This serves as the primary entry point and orchestrator of the entire DesignLoop AI system. It manages the overall workflow: initializing the design process, invoking the <code>agent_designer</code> to create or modify agents, running the agents, and finally utilizing <code>metrics.py</code> to evaluate the results. It acts as the central control plane.</p>
+<h3 id="agent_designerpy"><code>agent_designer.py</code><a class="headerlink" href="#agent_designerpy" title="Permanent link">&para;</a></h3>
+<p>This module is responsible for the creation, configuration, and management of the AI agents. It encapsulates the logic for defining agent roles, setting up their operational parameters, and potentially implementing meta-level design decisions (e.g., deciding which agent is best suited for a specific sub-task). It generates the executable agent instances.</p>
+<h3 id="metricspy"><code>metrics.py</code><a class="headerlink" href="#metricspy" title="Permanent link">&para;</a></h3>
+<p>This module is dedicated to evaluation. It houses the logic for defining, calculating, and reporting on the performance of the generated designs or the outputs of the agents. It provides quantitative feedback to the system, which is crucial for the iterative improvement loop managed by <code>main.py</code>.</p>
+<h3 id="tests__init__py"><code>tests/__init__.py</code><a class="headerlink" href="#tests__init__py" title="Permanent link">&para;</a></h3>
+<p>This directory contains the unit and integration tests for all other modules. It ensures the robustness and correctness of the agent design logic, the metric calculations, and the overall system flow before deployment or execution.</p>
 <h2 id="data-flow-explanation">Data Flow Explanation<a class="headerlink" href="#data-flow-explanation" title="Permanent link">&para;</a></h2>
-<p>The DesignLoop AI process follows a strict Observe $\rightarrow$ Think $\rightarrow$ Act $\rightarrow$ Observe cycle:</p>
+<p>The data flow in DesignLoop AI follows a clear, iterative cycle:</p>
 <ol>
-<li><strong>Initialization:</strong> The process begins with a baseline design mockup and initial specifications.</li>
-<li><strong>Observation (Initial):</strong> <code>metrics.py</code> analyzes the initial HTML output to establish baseline scores across the target dimensions (Accessibility, Symmetry, Harmony).</li>
-<li><strong>Thinking:</strong> <code>design_agent.py</code> receives these metrics. Its <code>think()</code> method compares the current scores against the target goals. If the goals are not met, it generates a detailed critique identifying specific areas for improvement (e.g., "Contrast ratio in CTA button is 2.5:1, needs to be $\ge 4.5:1$").</li>
-<li><strong>Acting:</strong> The agent's <code>act()</code> method translates this critique into concrete changes, modifying the design specifications (e.g., changing the button's background color).</li>
-<li><strong>Iteration/Regeneration:</strong> <code>iterative_design.py</code> takes these new specifications and feeds them into the <strong>Design-to-HTML Converter</strong>, generating a new HTML/CSS artifact.</li>
-<li><strong>Observation (Next Cycle):</strong> The new artifact is passed back to <code>metrics.py</code> for re-evaluation.</li>
-<li><strong>Convergence:</strong> This loop repeats. The process terminates successfully when the <code>design_agent</code> determines that all three measurable dimensions have improved sufficiently across the required iterations (Success Criterion: $\ge 3$ dimensions improved within $\le 5$ iterations).</li>
+<li><strong>Initialization (<code>main.py</code>):</strong> The process begins in <code>main.py</code>, which receives the initial design goal or problem statement.</li>
+<li><strong>Agent Generation (<code>main.py</code> $\rightarrow$ <code>agent_designer.py</code>):</strong> <code>main.py</code> passes the goal to <code>agent_designer.py</code>. The designer module processes this input to construct and configure one or more specialized AI agents.</li>
+<li><strong>Execution (Internal to Agents):</strong> The configured agents are executed (this execution step is abstracted but driven by the configuration from <code>agent_designer.py</code>).</li>
+<li><strong>Evaluation (<code>main.py</code> $\rightarrow$ <code>metrics.py</code>):</strong> Once the agents produce an output or a set of results, <code>main.py</code> passes these results to <code>metrics.py</code>. The metrics module calculates scores, identifies weaknesses, and generates a performance report.</li>
+<li><strong>Feedback Loop (<code>metrics.py</code> $\rightarrow$ <code>main.py</code> $\rightarrow$ <code>agent_designer.py</code>):</strong> The performance report from <code>metrics.py</code> is returned to <code>main.py</code>. <code>main.py</code> uses this feedback to inform the next iteration, potentially instructing <code>agent_designer.py</code> to modify the agents' parameters, change their roles, or initiate a completely new design cycle, thus closing the loop.</li>
 </ol>
 
 
