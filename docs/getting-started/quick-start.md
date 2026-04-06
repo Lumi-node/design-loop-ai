@@ -1,137 +1,126 @@
 # 🚀 DesignLoop AI Quick Start Guide
 
-Welcome to DesignLoop AI! This guide will get you up and running with our core design automation framework, focusing on the `design_agent.py` module.
+Welcome to DesignLoop AI! This guide will get you up and running quickly with our powerful design automation toolkit.
 
-DesignLoop AI enables AI agents to iteratively refine visual designs by analyzing generated code against established design principles.
+DesignLoop AI allows you to define, iterate, and evaluate design processes using intelligent agents.
 
-## 📦 Package Structure
+## Prerequisites
 
-The core functionality resides within the `design_loop_ai` package:
+Ensure you have Python installed (3.8+ recommended).
 
-*   `design_agent.py`: The central `ReasoningAgent` that orchestrates the design loop (Think $\rightarrow$ Act $\rightarrow$ Observe).
-*   `iterative_design.py`: Contains the logic for managing the overall design iteration process.
-*   `metrics.py`: Provides functions to analyze generated HTML/CSS against quantitative design standards.
-*   `tests/__init__.py`: Unit and integration tests.
-
-## 🧠 Core Concept: The Reasoning Agent
-
-The `design_agent.py` module implements a `ReasoningAgent`. This agent operates in a continuous loop:
-
-1.  **`think()`**: Analyzes the current design output (HTML/CSS) using rules defined in `metrics.py`. It identifies weaknesses (e.g., low contrast, inconsistent padding).
-2.  **`act()`**: Based on the analysis, it generates *modified design specifications* (e.g., "Increase primary button padding by 10px," "Change header background to `#1a2b3c`"). These specs are fed back into the design-to-HTML converter.
-3.  **`observe()`**: Executes the design-to-HTML conversion with the new specs and extracts quantifiable metrics (Accessibility Score, Symmetry Score, etc.) from the resulting code.
-
-**Success Criteria:** The agent must improve a baseline design mockup across 3+ measurable dimensions within 5 iterations.
-
----
-
-## 🛠️ Installation & Setup (Conceptual)
-
-Assuming you have the package installed:
+Install the package:
 
 ```bash
 pip install design_loop_ai
 ```
 
+## Project Structure Overview
+
+The core components of the library are:
+
+*   `agent_designer.py`: Contains the logic for defining and managing AI agents.
+*   `main.py`: The primary entry point for running design loops.
+*   `metrics.py`: Tools for evaluating the quality and performance of generated designs.
+*   `tests/`: Contains unit tests.
+
+---
+
 ## 💡 Usage Examples
 
-Here are three practical examples demonstrating how to initialize and run the DesignLoop Agent.
+Here are three practical examples demonstrating how to use the core functionalities of DesignLoop AI.
 
-### Example 1: Basic Accessibility Improvement Loop
+### Example 1: Simple Design Generation (Using `agent_designer.py`)
 
-This example focuses solely on improving the accessibility score of a simple component.
-
-```python
-from design_loop_ai.design_agent import ReasoningAgent
-from design_loop_ai.iterative_design import DesignLoopRunner
-from design_loop_ai.metrics import AccessibilityChecker
-
-# 1. Define the initial state (e.g., a baseline mockup spec)
-initial_spec = {"component": "button", "color_scheme": "default", "text_size": "16px"}
-
-# 2. Initialize the agent, providing the specific metric checker
-accessibility_agent = ReasoningAgent(
-    metric_analyzer=AccessibilityChecker()
-)
-
-# 3. Set up the runner to manage the iteration process
-runner = DesignLoopRunner(
-    agent=accessibility_agent,
-    initial_design_spec=initial_spec,
-    max_iterations=5
-)
-
-print("--- Starting Accessibility Refinement ---")
-final_design = runner.run()
-
-print("\n✅ Design Loop Complete.")
-print(f"Final Accessibility Score: {final_design.metrics['accessibility_score']}")
-```
-
-### Example 2: Multi-Dimensional Refinement (Symmetry & Harmony)
-
-This example demonstrates the agent tackling multiple design principles simultaneously by integrating different metric checkers.
+This example shows how to instantiate a basic agent and prompt it to generate a concept based on a simple requirement.
 
 ```python
-from design_loop_ai.design_agent import ReasoningAgent
-from design_loop_ai.iterative_design import DesignLoopRunner
-from design_loop_ai.metrics import SymmetryChecker, ColorHarmonyChecker
+# example_1_generation.py
+from design_loop_ai.agent_designer import AgentDesigner
 
-# 1. Combine multiple metric analyzers into a composite checker
-composite_checker = type('CompositeChecker', (object,), {
-    'analyze': lambda html: {
-        'symmetry_score': SymmetryChecker().analyze(html),
-        'color_harmony_score': ColorHarmonyChecker().analyze(html)
-    }
-})()
+# 1. Initialize the Agent Designer
+designer = AgentDesigner()
 
-# 2. Initialize the agent with the composite analyzer
-multi_dim_agent = ReasoningAgent(
-    metric_analyzer=composite_checker
-)
+# 2. Define the prompt/goal
+prompt = "Design a minimalist landing page for a sustainable coffee brand. Focus on earthy tones."
 
-# 3. Run the loop
-runner = DesignLoopRunner(
-    agent=multi_dim_agent,
-    initial_design_spec={"layout": "grid", "palette": "vibrant"},
-    max_iterations=5
-)
+print("--- Generating Initial Design Concept ---")
+# 3. Run the generation process
+design_output = designer.generate_design(prompt=prompt)
 
-print("\n--- Starting Multi-Dimensional Refinement ---")
-final_result = runner.run()
-
-print("\n✨ Final Design Metrics:")
-print(f"  Symmetry Score: {final_result.metrics['symmetry_score']:.2f}")
-print(f"  Color Harmony Score: {final_result.metrics['color_harmony_score']:.2f}")
+print("\n✅ Design Concept Generated:")
+print(design_output)
 ```
 
-### Example 3: Inspecting Agent Logic (Debugging/Testing)
+### Example 2: Iterative Refinement Loop (Using `main.py`)
 
-If you want to see *why* the agent decided to change something, you can manually step through the `think()` and `act()` methods using the agent instance directly.
+This demonstrates the core strength of DesignLoop: iterative improvement. We start with a concept and ask the agent to refine it based on specific feedback.
 
 ```python
-from design_loop_ai.design_agent import ReasoningAgent
-from design_loop_ai.metrics import ContrastRatioChecker
+# example_2_iteration.py
+from design_loop_ai.main import run_design_loop
 
-# Setup a minimal agent instance
-contrast_agent = ReasoningAgent(
-    metric_analyzer=ContrastRatioChecker()
+# Define the initial state and the refinement steps
+initial_prompt = "A dark-mode dashboard for a productivity app."
+refinement_steps = [
+    "Increase the contrast ratio for better accessibility.",
+    "Incorporate subtle animations on hover states.",
+    "Simplify the navigation bar to only three icons."
+]
+
+print("--- Starting Iterative Design Loop ---")
+
+# Run the loop, passing the initial prompt and the sequence of feedback
+final_design = run_design_loop(
+    initial_prompt=initial_prompt,
+    feedback_sequence=refinement_steps
 )
 
-# Assume 'current_html' is the output from the previous iteration
-current_html = "<div style='background-color: #ccc; color: #333;'>Text</div>"
-
-print("--- Agent Thinking Phase ---")
-# The agent analyzes the current state
-analysis = contrast_agent.think(current_html)
-print(f"Agent Analysis: {analysis}")
-
-# The agent decides on a change based on the analysis
-new_spec = contrast_agent.act(analysis)
-print(f"Agent Action (New Spec): {new_spec}")
-
-# Simulate observation (running the design-to-HTML converter with the new spec)
-# In a real scenario, this would call the converter function.
-observed_metrics = contrast_agent.observe(new_spec)
-print(f"Observed Metrics After Action: {observed_metrics}")
+print("\n✨ Final Refined Design:")
+print(final_design)
 ```
+
+### Example 3: Evaluating Design Quality (Using `metrics.py`)
+
+Once you have a design (or a set of designs), you need to know if it's good. This example uses the `metrics` module to score the output against predefined criteria.
+
+*(Assume `design_output_json` is the structured output from a previous step)*
+
+```python
+# example_3_evaluation.py
+from design_loop_ai.metrics import DesignEvaluator
+
+# Mock design output (in a real scenario, this comes from agent_designer)
+design_output_json = {
+    "layout": "Grid-based",
+    "color_palette": ["#333333", "#F5F5DC"],
+    "usability_score": 0.75,
+    "complexity": "Low"
+}
+
+# 1. Initialize the Evaluator
+evaluator = DesignEvaluator()
+
+# 2. Define evaluation criteria (e.g., target accessibility score)
+criteria = {
+    "min_usability_score": 0.80,
+    "max_complexity": "Medium"
+}
+
+# 3. Run the evaluation
+evaluation_report = evaluator.evaluate(
+    design_data=design_output_json,
+    criteria=criteria
+)
+
+print("--- Design Evaluation Report ---")
+print(f"Overall Score: {evaluation_report['overall_score']:.2f}")
+print("Detailed Feedback:")
+for metric, result in evaluation_report['details'].items():
+    print(f"  - {metric}: {result}")
+```
+
+## 📚 Next Steps
+
+1.  **Dive Deeper:** Explore `agent_designer.py` to customize agent personalities and toolsets.
+2.  **Tune Metrics:** Modify the scoring functions in `metrics.py` to match your specific design quality standards.
+3.  **Advanced Loops:** Experiment with complex feedback loops in `main.py` where the agent can self-correct based on metric scores.

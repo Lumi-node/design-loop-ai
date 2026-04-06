@@ -17,4 +17,4 @@ pip install -e ".[dev]"
 ## Requirements
 
 - Python >= 3.10
-- Dependencies: agent, color_extractor, colorsys, design_agent, html, image_loader, layout_detector, main
+- Dependencies: agent_designer, bs4, html, html_generator, importlib, metrics

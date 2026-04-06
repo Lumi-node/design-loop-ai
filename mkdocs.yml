@@ -1,6 +1,6 @@
 site_name: DesignLoop AI
 site_url: https://lumi-node.github.io/design-loop-ai/
-site_description: "Self-improving agent refining HTML design via visual feedback."
+site_description: "Self-improving agent using visual feedback for automated design."
 site_author: Andrew Young
 repo_url: https://github.com/Lumi-node/design-loop-ai
 repo_name: Lumi-node/design-loop-ai

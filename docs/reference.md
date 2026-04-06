@@ -1,155 +1,210 @@
 # DesignLoop AI API Reference
 
-DesignLoop AI provides a suite of modules for automating and optimizing the design-to-code generation process using AI-driven iterative refinement.
+This document provides a reference for the modules within the DesignLoop AI framework.
 
 ---
 
-## 🧠 `design_agent.py`
+## 🐍 `agent_designer.py`
 
-This module contains the core `ReasoningAgent`, which orchestrates the design loop. It takes an initial design specification, generates HTML, analyzes the output against predefined design principles, and iteratively refines the specifications until performance metrics meet target thresholds.
+This module contains the core logic for defining, configuring, and managing AI agents within the DesignLoop ecosystem.
 
-### `ReasoningAgent` Class
+### Class: `Agent`
 
-The central class responsible for the entire iterative design process.
+Represents a single, configurable AI agent.
 
 **Signature:**
 ```python
-class ReasoningAgent:
-    __init__(self, initial_spec: Dict, design_principles: List[str], max_iterations: int = 5)
-    def run_design_loop(self) -> Dict:
-    def think(self, current_html: str, current_metrics: Dict) -> Dict:
-    def act(self, component_name: str, refinement_instructions: str) -> Dict:
-    def observe(self, html_output: str) -> Dict:
+class Agent:
+    def __init__(self, name: str, persona: str, capabilities: list[str]): ...
+    def configure_prompt(self, system_message: str, user_context: str) -> dict: ...
+    def execute_task(self, input_data: dict) -> dict: ...
 ```
 
 **Description:**
-*   **`__init__`**: Initializes the agent with the starting design parameters, the rules it must follow (e.g., "WCAG AA contrast"), and the maximum number of refinement steps.
-*   **`run_design_loop`**: Executes the main loop: `Think` $\rightarrow$ `Act` $\rightarrow$ `Observe`. It returns the final, optimized design specification and the achieved metrics.
-*   **`think`**: Analyzes the current HTML structure and metrics. It determines *what* needs improvement (e.g., "The primary CTA contrast is too low," or "Spacing around the header is inconsistent"). It outputs a set of actionable instructions.
-*   **`act`**: Takes the instructions from `think()` and modifies the underlying design specification (e.g., changing a color hex code, adjusting padding values) for a specific component.
-*   **`observe`**: Parses the generated HTML/CSS to extract quantifiable metrics (e.g., calculating actual contrast ratios, measuring element distances).
+The `Agent` class encapsulates an AI agent's identity (name, persona) and its functional abilities. It provides methods to set up the operational context (prompting) and run tasks.
 
 **Example Usage:**
 ```python
-from design_loop.design_agent import ReasoningAgent
+from agent_designer import Agent
 
-# 1. Define the starting point
-initial_spec = {"layout": "grid", "colors": {"primary": "#007bff"}, "components": ["header", "card"]}
-principles = ["contrast_ratio_min_4_5", "layout_symmetry_high", "semantic_structure_valid"]
+# 1. Initialize the agent
+design_agent = Agent(
+    name="UI_Designer",
+    persona="A senior UX/UI designer specializing in modern web interfaces.",
+    capabilities=["generate_mockups", "critique_design", "optimize_layout"]
+)
 
-# 2. Initialize and run the agent
-agent = ReasoningAgent(initial_spec, principles, max_iterations=5)
-final_result = agent.run_design_loop()
+# 2. Configure the agent's operational context
+config = design_agent.configure_prompt(
+    system_message="You must adhere strictly to Material Design guidelines.",
+    user_context="The target audience is small business owners."
+)
+print(f"Agent Configuration Ready: {config}")
 
-print("Design Optimization Complete.")
-print(f"Final Metrics: {final_result['metrics']}")
-# Expected Success: Metrics show improvement across 3+ dimensions within 5 iterations.
+# 3. Execute a task
+task_input = {"feature": "User Dashboard", "style": "minimalist"}
+result = design_agent.execute_task(task_input)
+print(f"Task Result: {result}")
+```
+
+### Function: `load_agent_from_config(file_path: str) -> Agent`
+
+**Signature:**
+```python
+def load_agent_from_config(file_path: str) -> Agent: ...
+```
+
+**Description:**
+Loads a pre-defined `Agent` instance from a specified configuration file (e.g., JSON or YAML).
+
+**Example Usage:**
+```python
+from agent_designer import load_agent_from_config
+
+# Assuming 'agent_config.json' exists
+try:
+    loaded_agent = load_agent_from_config("agent_config.json")
+    print(f"Successfully loaded agent: {loaded_agent.name}")
+except FileNotFoundError:
+    print("Configuration file not found.")
 ```
 
 ---
 
-## 🔄 `iterative_design.py`
+## 🚀 `main.py`
 
-This module handles the state management and the actual generation/regeneration of code based on the agent's decisions. It acts as the interface between the abstract design instructions and the concrete HTML output.
+This module serves as the primary entry point for running the DesignLoop AI workflow, orchestrating agents and managing the overall design process.
 
-### `DesignGenerator` Class
-
-Manages the conversion pipeline from design specs to rendered code.
+### Function: `run_design_pipeline(project_brief: dict, agents: list[Agent]) -> dict`
 
 **Signature:**
 ```python
-class DesignGenerator:
-    __init__(self, base_template_path: str):
-    def generate_html(self, design_spec: Dict) -> str:
-    def regenerate_component(self, current_html: str, component_name: str, new_spec: Dict) -> str:
+def run_design_pipeline(project_brief: dict, agents: list[Agent]) -> dict: ...
 ```
 
 **Description:**
-*   **`__init__`**: Loads the foundational HTML/CSS templates used for rendering.
-*   **`generate_html`**: Takes a complete design specification dictionary and renders the full, initial HTML document.
-*   **`regenerate_component`**: Performs targeted DOM/CSS manipulation on an existing HTML string. Instead of regenerating everything, it replaces or updates only the specified component based on the new, refined specification, ensuring continuity in the design loop.
+Executes the complete design workflow. It iterates through the provided list of agents, passing the output of one agent as the input context for the next, based on the `project_brief` sequence.
 
 **Example Usage:**
 ```python
-from design_loop.iterative_design import DesignGenerator
+from main import run_design_pipeline
+from agent_designer import Agent
 
-generator = DesignGenerator(base_template_path="./templates/base.html")
+# Setup agents (assuming they are already instantiated)
+designer = Agent("Designer", "...", ["generate_mockups"])
+reviewer = Agent("Reviewer", "...", ["critique_design"])
+agent_list = [designer, reviewer]
 
-# Initial generation
-initial_spec = {"color_scheme": "light", "padding": 16}
-html_output = generator.generate_html(initial_spec)
+# Define the project scope
+brief = {
+    "title": "E-commerce Checkout Flow",
+    "goals": ["Increase conversion rate by 15%"],
+    "steps": ["design_initial", "review_and_refine"]
+}
 
-# Refinement step: Change padding on the 'card' component
-refined_spec = {"padding": 24}
-new_html = generator.regenerate_component(html_output, "card", refined_spec)
+# Run the pipeline
+final_output = run_design_pipeline(brief, agent_list)
+print("\n--- Final Design Output ---")
+print(final_output)
+```
+
+### Function: `initialize_design_loop(config_path: str) -> dict`
+
+**Signature:**
+```python
+def initialize_design_loop(config_path: str) -> dict: ...
+```
+
+**Description:**
+Sets up the entire DesignLoop environment, loading global settings, connecting to necessary services (e.g., LLM providers), and returning the initialized context object.
+
+**Example Usage:**
+```python
+from main import initialize_design_loop
+
+# Load global settings from a configuration file
+context = initialize_design_loop("global_settings.yaml")
+print(f"DesignLoop initialized successfully. LLM Provider: {context.get('llm_provider')}")
 ```
 
 ---
 
 ## 📊 `metrics.py`
 
-This module provides the analytical tools necessary for the `ReasoningAgent` to quantify the quality of the generated design. It parses HTML/CSS and calculates objective scores.
+This module provides tools for tracking, calculating, and visualizing the performance and quality of the AI agents during the design process.
 
-### `DesignEvaluator` Class
+### Class: `PerformanceTracker`
 
-A utility class for calculating various design quality scores.
+Manages the collection and aggregation of metrics across multiple agent runs.
 
 **Signature:**
 ```python
-class DesignEvaluator:
-    def calculate_accessibility_score(self, html_content: str) -> float:
-    def measure_layout_symmetry(self, html_content: str) -> float:
-    def analyze_color_harmony(self, css_content: str) -> float:
-    def extract_component_metrics(self, html_content: str, component_name: str) -> Dict:
+class PerformanceTracker:
+    def __init__(self, project_id: str): ...
+    def record_latency(self, agent_name: str, duration_ms: float): ...
+    def record_quality_score(self, agent_name: str, score: float, criteria: str): ...
+    def get_summary(self) -> dict: ...
 ```
 
 **Description:**
-*   **`calculate_accessibility_score`**: Scans the HTML/CSS to check for WCAG compliance (e.g., contrast ratios, alt-text presence) and returns a normalized score (0.0 to 1.0).
-*   **`measure_layout_symmetry`**: Analyzes the CSS layout properties (margins, padding, grid alignment) to quantify how balanced the visual structure is.
-*   **`analyze_color_harmony`**: Uses color theory algorithms to assess the relationship between colors used in the design (e.g., complementary, analogous).
-*   **`extract_component_metrics`**: Provides granular data on a specific element, useful for targeted refinement in the `act()` phase.
+The `PerformanceTracker` allows developers to log specific events (like time taken or subjective quality scores) associated with each agent execution.
 
 **Example Usage:**
 ```python
-from design_loop.metrics import DesignEvaluator
+from metrics import PerformanceTracker
 
-evaluator = DesignEvaluator()
-html = "<div style='color: red; background-color: white;'>...</div>"
+tracker = PerformanceTracker(project_id="P-4001")
 
-# Check accessibility
-acc_score = evaluator.calculate_accessibility_score(html)
-print(f"Accessibility Score: {acc_score:.2f}")
+# Record how long the UI_Designer took
+tracker.record_latency("UI_Designer", 1250.5)
 
-# Check color harmony (assuming CSS content is available)
-css = "body { background-color: #1e3c72; }"
-harmony_score = evaluator.analyze_color_harmony(css)
-print(f"Color Harmony Score: {harmony_score:.2f}")
+# Record the reviewer's assessment of the generated mockup
+tracker.record_quality_score("Reviewer", 0.88, "Usability")
+
+# Get the aggregated results
+summary = tracker.get_summary()
+print("\n--- Performance Summary ---")
+print(summary)
+```
+
+### Function: `calculate_design_efficiency(metrics_data: list[dict]) -> float`
+
+**Signature:**
+```python
+def calculate_design_efficiency(metrics_data: list[dict]) -> float: ...
+```
+
+**Description:**
+Calculates a composite efficiency score based on a list of raw metric data dictionaries. Higher scores indicate faster and higher-quality design iterations.
+
+**Example Usage:**
+```python
+from metrics import calculate_design_efficiency
+
+# Sample data structure expected by the function
+sample_metrics = [
+    {"latency": 1000, "quality": 0.9},
+    {"latency": 1500, "quality": 0.7}
+]
+
+efficiency = calculate_design_efficiency(sample_metrics)
+print(f"Overall Design Efficiency Score: {efficiency:.2f}")
 ```
 
 ---
 
 ## 🧪 `tests/__init__.py`
 
-This module serves as the entry point for unit and integration testing of the DesignLoop AI components.
+This module is reserved for testing utilities and fixtures. It does not expose public API functions but is crucial for running unit and integration tests.
 
-### Testing Utilities
+**Note:** This module typically contains setup hooks for `pytest` or similar testing frameworks.
 
-**Signature:**
+**Example Usage (Internal Testing Only):**
 ```python
-# No public classes, primarily imports for test runners
-from .test_agent import test_reasoning_agent
-from .test_generator import test_design_generator
-from .test_metrics import test_design_evaluator
-```
-
-**Description:**
-Contains fixtures and test cases to verify that the `ReasoningAgent` correctly drives the loop, that the `DesignGenerator` accurately transforms specs to HTML, and that the `DesignEvaluator` produces mathematically correct metrics.
-
-**Example Usage:**
-```python
-# Typically run via pytest, but this shows the structure
-from design_loop.tests import test_reasoning_agent
-
-# Example test execution (conceptual)
-# assert test_reasoning_agent.test_success_criteria() == True
+# This file is generally not imported by end-users.
+# It might contain fixtures like:
+# @pytest.fixture(scope="session")
+# def mock_llm_service():
+#     # Setup mock responses for LLM calls
+#     pass
 ```

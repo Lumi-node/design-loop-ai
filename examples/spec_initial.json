@@ -1,0 +1,14 @@
+{
+  "layout_regions": {
+    "header_height_percent": 85,
+    "content_width_percent": 70,
+    "footer_height_percent": 5,
+    "sidebar_width_percent": 30
+  },
+  "colors": {
+    "header": ["#444444"],
+    "sidebar": ["#222222"],
+    "content": ["#555555"],
+    "footer": ["#444444"]
+  }
+}

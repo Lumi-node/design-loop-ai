@@ -1,0 +1,154 @@
+{
+  "iterations": [
+    {
+      "iteration_number": 0,
+      "metrics": {
+        "dom_depth": 5,
+        "contrast_ratios": {
+          "header_text_bg": 9.739769120526205,
+          "sidebar_text_bg": 15.909984431773273,
+          "content_text_bg": 7.455177810447525,
+          "footer_text_bg": 9.739769120526205
+        },
+        "avg_contrast_ratio": 10.711175120818302,
+        "layout_symmetry": 0.8192381489084786,
+        "accessibility_score": 48.0
+      }
+    },
+    {
+      "iteration_number": 1,
+      "metrics": {
+        "dom_depth": 5,
+        "contrast_ratios": {
+          "header_text_bg": 6.979160992227104,
+          "sidebar_text_bg": 12.066764449530355,
+          "content_text_bg": 5.536133168650302,
+          "footer_text_bg": 6.96039468894164
+        },
+        "avg_contrast_ratio": 7.88561332483735,
+        "layout_symmetry": 0.8494277395376296,
+        "accessibility_score": 48.0
+      }
+    },
+    {
+      "iteration_number": 2,
+      "metrics": {
+        "dom_depth": 5,
+        "contrast_ratios": {
+          "header_text_bg": 4.9408744917177785,
+          "sidebar_text_bg": 8.547308131392901,
+          "content_text_bg": 3.9170472475192954,
+          "footer_text_bg": 5.339021662237861
+        },
+        "avg_contrast_ratio": 5.686062883216959,
+        "layout_symmetry": 0.8755920514162272,
+        "accessibility_score": 45.0
+      }
+    },
+    {
+      "iteration_number": 3,
+      "metrics": {
+        "dom_depth": 5,
+        "contrast_ratios": {
+          "header_text_bg": 5.791902203818453,
+          "sidebar_text_bg": 6.494432561717595,
+          "content_text_bg": 7.388067290486449,
+          "footer_text_bg": 4.0817341970783625
+        },
+        "avg_contrast_ratio": 5.939034063275215,
+        "layout_symmetry": 0.8977310845442713,
+        "accessibility_score": 45.0
+      }
+    },
+    {
+      "iteration_number": 4,
+      "metrics": {
+        "dom_depth": 5,
+        "contrast_ratios": {
+          "header_text_bg": 7.63472088230695,
+          "sidebar_text_bg": 5.119793357173781,
+          "content_text_bg": 9.766581543463728,
+          "footer_text_bg": 6.6244118031461205
+        },
+        "avg_contrast_ratio": 7.286376896522645,
+        "layout_symmetry": 0.9158448389217619,
+        "accessibility_score": 48.0
+      }
+    },
+    {
+      "iteration_number": 5,
+      "metrics": {
+        "dom_depth": 5,
+        "contrast_ratios": {
+          "header_text_bg": 9.519752723077819,
+          "sidebar_text_bg": 5.3962738092711575,
+          "content_text_bg": 11.850820823044714,
+          "footer_text_bg": 8.666197897416247
+        },
+        "avg_contrast_ratio": 8.858261313202483,
+        "layout_symmetry": 0.9158448389217619,
+        "accessibility_score": 48.0
+      }
+    },
+    {
+      "iteration_number": 6,
+      "metrics": {
+        "dom_depth": 5,
+        "contrast_ratios": {
+          "header_text_bg": 11.517736105465447,
+          "sidebar_text_bg": 6.955930570876517,
+          "content_text_bg": 13.9949158243255,
+          "footer_text_bg": 10.576764019832753
+        },
+        "avg_contrast_ratio": 10.761336630125054,
+        "layout_symmetry": 0.9158448389217619,
+        "accessibility_score": 48.0
+      }
+    },
+    {
+      "iteration_number": 7,
+      "metrics": {
+        "dom_depth": 5,
+        "contrast_ratios": {
+          "header_text_bg": 14.479999226478547,
+          "sidebar_text_bg": 8.706133740788793,
+          "content_text_bg": 17.15146181878669,
+          "footer_text_bg": 12.964944965000734
+        },
+        "avg_contrast_ratio": 13.325634937763692,
+        "layout_symmetry": 0.9158448389217619,
+        "accessibility_score": 48.0
+      }
+    },
+    {
+      "iteration_number": 8,
+      "metrics": {
+        "dom_depth": 5,
+        "contrast_ratios": {
+          "header_text_bg": 16.9311929275234,
+          "sidebar_text_bg": 10.980241289322636,
+          "content_text_bg": 20.50651749035657,
+          "footer_text_bg": 15.750639307941473
+        },
+        "avg_contrast_ratio": 16.04214775378602,
+        "layout_symmetry": 0.9158448389217619,
+        "accessibility_score": 48.0
+      }
+    },
+    {
+      "iteration_number": 9,
+      "metrics": {
+        "dom_depth": 5,
+        "contrast_ratios": {
+          "header_text_bg": 19.82648045930809,
+          "sidebar_text_bg": 13.791388650282386,
+          "content_text_bg": 20.961654999335305,
+          "footer_text_bg": 18.977506603087637
+        },
+        "avg_contrast_ratio": 18.389257678003354,
+        "layout_symmetry": 0.9158448389217619,
+        "accessibility_score": 48.0
+      }
+    }
+  ]
+}
