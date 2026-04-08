@@ -24,7 +24,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    # no external dependencies
+    "beautifulsoup4>=4.12",
 ]
 
 [project.optional-dependencies]

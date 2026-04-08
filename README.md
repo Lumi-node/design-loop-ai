@@ -5,119 +5,203 @@
 <h1 align="center">DesignLoop AI</h1>
 
 <p align="center">
-  <strong>Self-improving agent using visual feedback for automated design iteration.</strong>
+  <strong>Deterministic HTML quality metrics and autonomous design iteration agent.</strong>
 </p>
 
 <p align="center">
   <a href="https://github.com/Lumi-node/design-loop-ai"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License Badge"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.10%2B-blue.svg" alt="Python Version Badge"></a>
-  <a href="https://github.com/Lumi-node/design-loop-ai"><img src="https://img.shields.io/badge/Tests-9%2B-green.svg" alt="Test Count Badge"></a>
+  <a href="https://github.com/Lumi-node/design-loop-ai"><img src="https://img.shields.io/badge/Metrics_Tests-44_pass-green.svg" alt="Test Count Badge"></a>
 </p>
 
 ---
 
-DesignLoop AI is a sophisticated research artifact demonstrating the capabilities of autonomous agents in the domain of automated design. It functions as a self-improving system capable of iterating on design outputs based on visual feedback, moving beyond static generation to active refinement.
+DesignLoop AI provides two things:
 
-This project serves as a proof-of-concept for complex, closed-loop AI systems where the agent observes its output, evaluates it against metrics, and modifies its internal state or generation parameters to achieve a desired design goal autonomously.
+1. **A standalone HTML quality metrics library** (fully functional, 44 tests passing) that measures DOM structure, WCAG contrast ratios, layout symmetry, accessibility compliance, and responsive breakpoints.
+2. **A design iteration agent** that uses those metrics in a think-act-observe loop to autonomously improve HTML/CSS quality. The agent module depends on external source modules (an HTML generator and image processing pipeline) that are not bundled in this repository.
+
+The metrics module is the primary value -- it implements real WCAG 2.1 math, gamma-corrected luminance calculations, and variance-based layout analysis. All functions are deterministic: same input HTML produces the same scores every run.
 
 ---
 
-## Quick Start
+## Installation
 
 ```bash
-pip install design_loop_ai
+pip install design-loop-ai
 ```
 
-```python
-from design_loop_ai.agent_designer import AgentDesigner
-from design_loop_ai.metrics import evaluate_design
+Or install from source:
 
-# Initialize the agent
-designer = AgentDesigner()
-
-# Simulate a design generation and evaluation loop
-initial_design = designer.generate_initial_design()
-feedback = evaluate_design(initial_design)
-
-# The agent uses feedback to refine the design
-refined_design = designer.refine_design(initial_design, feedback)
-print("Design iteration complete.")
+```bash
+git clone https://github.com/Lumi-node/design-loop-ai.git
+cd design-loop-ai
+pip install -e ".[dev]"
 ```
 
-## What Can You Do?
+## Metrics Module
 
-### Autonomous Design Iteration
-The core functionality allows the agent to take an initial design concept and iteratively improve it. It uses a feedback loop derived from defined metrics to guide its modifications.
+The `metrics` module provides five deterministic measurement functions for HTML quality analysis. No external services or APIs required.
+
+### DOM Depth Analysis
 
 ```python
-# Example of using the refinement method
-current_state = {"layout": "grid", "color_scheme": "blue"}
-new_state = designer.refine_design(current_state, {"score": 0.75, "issues": ["alignment_error"]})
-print(f"New design state: {new_state}")
+from metrics import extract_dom_depth
+
+html = '<html><body><div><div><p>Hello</p></div></div></body></html>'
+depth = extract_dom_depth(html)  # Returns 6
 ```
 
-### Metric-Driven Evaluation
-The `metrics.py` module provides tools to quantitatively assess the quality of the generated design against predefined criteria, which feeds directly back into the agent's learning process.
+### WCAG Contrast Ratios
+
+Calculates contrast ratios between text and background colors following the WCAG 2.1 formula with proper sRGB gamma correction.
 
 ```python
-from design_loop_ai.metrics import evaluate_design
+from metrics import extract_contrast_ratios
 
-# Assume 'design_output' is a structure representing the current design
-design_output = {"elements": ["header", "body"], "complexity": 0.8}
-results = evaluate_design(design_output)
-print(f"Evaluation results: {results}")
+html = '<div style="background-color: #FFFFFF; color: #000000;">High contrast</div>'
+ratios = extract_contrast_ratios(html)
+# Returns: {'element_0_text_bg': 21.0}
+# Values range from 1.0 (no contrast) to 21.0 (maximum: black on white)
+```
+
+Supports both inline styles and CSS class definitions, hex (`#RRGGBB`) and `rgb()` color formats.
+
+### Layout Symmetry
+
+Measures how evenly distributed flex or height-based layouts are, using variance of normalized proportions.
+
+```python
+from metrics import calculate_layout_symmetry
+
+# Three equal flex regions = perfect symmetry
+html = '''
+<div class="container">
+  <div style="flex: 1">A</div>
+  <div style="flex: 1">B</div>
+  <div style="flex: 1">C</div>
+</div>
+'''
+score = calculate_layout_symmetry(html)  # Returns 1.0 (perfectly symmetric)
+```
+
+Returns a float from 0.0 (fully asymmetric) to 1.0 (perfectly symmetric).
+
+### Accessibility Scoring
+
+Weighted WCAG 2.1 AA compliance score across structural elements, semantic HTML, contrast, alt text, form labels, and heading hierarchy.
+
+```python
+from metrics import calculate_accessibility_score
+
+score = calculate_accessibility_score(html)  # Returns float 0-100
+```
+
+Scoring breakdown:
+- Required elements (`html`, `head`, `body`, `title`): +10 each
+- Semantic elements (`h1`, `nav`, `main`, `footer`): +5 each
+- Contrast pairs meeting AA threshold (4.5:1): +2 each, -1 for non-compliant
+- Image alt text: +5 each (max +20)
+- Form labels: +5 each (max +20)
+- Correct heading hierarchy: +10
+
+### Responsive Breakpoints
+
+Extracts media query breakpoints from embedded CSS.
+
+```python
+from metrics import extract_responsive_breakpoints
+
+breakpoints = extract_responsive_breakpoints(html)  # Returns sorted list, e.g. [480, 768, 1024]
+```
+
+## Agent Module
+
+The `agent_designer` module implements `DesignAgent` and `DesignIterationEnvironment` for autonomous design improvement through a think-act-observe cycle.
+
+**Important:** The agent's `act()` method depends on an `html_generator` module from an external source directory that is not included in this repository. The `observe()` and `think()` methods work standalone using the metrics module, but full end-to-end iteration requires providing the HTML generation pipeline separately.
+
+### What the agent does (conceptually)
+
+```
+Observe (metrics.py)  -->  Think (heuristics)  -->  Act (generate HTML)
+       ^                                                    |
+       |_____________ iterate until converged ______________|
+```
+
+The agent implements three heuristics:
+1. **Contrast Gap Closure**: shifts colors toward extremes when avg contrast < 4.5
+2. **Layout Symmetry Balance**: adjusts region percentages toward the mean when symmetry < 0.9
+3. **Accessibility Score Gap**: applies color/layout refinements when score < 70
+
+### Using the environment and agent independently
+
+```python
+from agent_designer import DesignIterationEnvironment
+
+# Manage design specs and track iteration history
+env = DesignIterationEnvironment()
+print(env.spec)  # Default spec with intentionally poor contrast/layout
+
+# Validate and apply modifications
+env.apply_spec_modifications({
+    'colors': {'header': ['#000000']},
+    'layout_regions': {'header_height_percent': 15}
+})
+
+# Record metrics per iteration
+env.record_iteration({
+    'accessibility_score': 65.0,
+    'layout_symmetry': 0.8,
+    'dom_depth': 4,
+    'contrast_ratios': {'header_text_bg': 12.5},
+    'avg_contrast_ratio': 12.5
+})
 ```
 
 ## Architecture
 
-The system is structured around a core control loop managed by `agent_designer.py`. This module orchestrates the process: it calls generation functions (potentially leveraging `html_generator`), feeds the output into `metrics.py` for scoring, and then uses the resulting feedback to inform the next iteration of the agent.
-
-The flow is: **Agent $\rightarrow$ Generate $\rightarrow$ Evaluate (Metrics) $\rightarrow$ Refine $\rightarrow$ Agent**.
-
-```mermaid
-graph TD
-    A[AgentDesigner.py] --> B{Generate Design};
-    B --> C[Design Output];
-    C --> D[Metrics.py];
-    D --> E{Feedback Score};
-    E --> A;
 ```
+metrics.py                  Standalone HTML quality metrics (fully functional)
+  extract_dom_depth()         DOM nesting depth
+  extract_contrast_ratios()   WCAG contrast ratio calculation
+  calculate_layout_symmetry() Variance-based layout balance
+  calculate_accessibility_score()  Weighted WCAG 2.1 AA scoring
+  extract_responsive_breakpoints() Media query extraction
 
-## API Reference
+agent_designer.py           Design iteration agent (requires external html_generator)
+  DesignAgent                 Think-act-observe agent with contrast/layout heuristics
+  DesignIterationEnvironment  Spec management, validation, iteration tracking
 
-### `agent_designer.AgentDesigner`
-The main class managing the design loop.
+design_agent.py             Alternative agent (requires external sources/ directory)
+  DesignAgent                 Extends ReasoningAgent for image-based design refinement
 
-*   `__init__()`: Initializes the agent's internal state and configuration.
-*   `generate_initial_design()`: Creates the first version of the design.
-*   `refine_design(current_design, feedback)`: Applies learned adjustments based on evaluation feedback.
-
-### `metrics.evaluate_design(design_data)`
-Calculates a quantitative score for a given design structure.
-
-*   **Signature**: `evaluate_design(design_data: dict) -> dict`
-*   **Returns**: A dictionary containing scores and identified issues.
-
-## Research Background
-
-This work is inspired by reinforcement learning paradigms applied to creative tasks, specifically exploring how visual feedback can serve as a reward signal for autonomous systems. Further reading on self-improving agents and visual grounding is recommended.
+iterative_design.py         End-to-end orchestrator (requires external sources/)
+main.py                     Iteration loop runner (requires external sources/)
+```
 
 ## Testing
 
-The project includes 9 unit tests located in the `tests/` directory, ensuring the core logic within `agent_designer.py` and `metrics.py` functions as expected.
+The metrics module has comprehensive test coverage (44 tests):
+
+```bash
+pytest tests/test_metrics.py -v
+```
+
+Tests cover DOM depth extraction, WCAG contrast math, layout symmetry calculation, accessibility scoring, responsive breakpoints, edge cases, malformed HTML handling, and determinism guarantees.
+
+## Research Background
+
+This project explores closed-loop autonomous design systems where an agent observes its output, evaluates it against quantitative metrics, and modifies its generation parameters to converge on quality targets. The metrics module implements established WCAG 2.1 accessibility standards; the agent applies gradient-free heuristic optimization over the design parameter space.
 
 ## Contributing
 
-Contributions are welcome! Please read the contribution guidelines (if available) and submit pull requests.
-
-## Citation
-
-This project is an R&D artifact. Specific citations related to the underlying AI techniques should be added if the implementation relies heavily on published academic work.
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
+
 MIT
 
 ---
 **Repository:** https://github.com/Lumi-node/design-loop-ai
-**Documentation:** https://lumi-node.github.io/design-loop-ai/
 **Author:** Andrew Young, Automate Capture Research
